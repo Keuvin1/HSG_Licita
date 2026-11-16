@@ -137,7 +137,7 @@ function montar() {
         // a 1ª etapa já está na tela quando a seção trava: dispara pela entrada da seção
         i === 0
           ? { trigger: ".caminho", start: "top 45%" }
-          : { containerAnimation: horizontal, start: "left 75%" }
+          : { containerAnimation: horizontal, start: "left 80%" }
       )
     );
   });
@@ -245,7 +245,7 @@ function animarDocumento(etapa, st) {
   const doc = $(".doc", etapa);
   const tipo = etapa.dataset.doc;
   const tl = gsap.timeline({
-    scrollTrigger: { trigger: doc, toggleActions: "play none none reverse", ...st },
+    scrollTrigger: { trigger: etapa, toggleActions: "play none none reverse", ...st },
   });
   tl.from(doc, { y: 60, opacity: 0, rotate: 0, duration: 0.9, ease: "expo.out" })
     .from($(".etapa-texto", etapa).children, { y: 30, opacity: 0, stagger: 0.08, duration: 0.8, ease: "expo.out" }, 0);
