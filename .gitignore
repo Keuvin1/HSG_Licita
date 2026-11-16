@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.DS_Store
+
+# material bruto pesado (vídeo de referência e frames extraídos)
+_bruto/*.mp4
+_bruto/lista.txt
+_bruto/frames/
+_bruto/sheets/
+_bruto/denso/
