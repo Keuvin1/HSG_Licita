@@ -70,7 +70,8 @@ export function iniciarMapa(canvas, chip) {
   camera.position.set(0, 0, 9);
 
   const MENTA = new THREE.Color(0x6fe3ad);
-  const BRANCO = new THREE.Color(0xeafff4);
+  const BRANCO = new THREE.Color(0xffffff);
+  const PONTO = new THREE.Color(0xe8ece9);
 
   const palco = new THREE.Group(); // posição na tela (desktop: à direita)
   const mapa = new THREE.Group(); // inclinação
@@ -112,7 +113,7 @@ export function iniciarMapa(canvas, chip) {
     uTempo: { value: 0 },
     uPixel: { value: renderer.getPixelRatio() },
     uRevela: { value: 0 },
-    uCor: { value: MENTA },
+    uCor: { value: PONTO },
   };
   const matP = new THREE.ShaderMaterial({
     vertexShader: vertPontos,
@@ -125,8 +126,8 @@ export function iniciarMapa(canvas, chip) {
   mapa.add(new THREE.Points(geoP, matP));
 
   // ---------- contorno ----------
-  const matLinha = new THREE.LineBasicMaterial({ color: MENTA, transparent: true, opacity: 0.55 });
-  const matSombra = new THREE.LineBasicMaterial({ color: MENTA, transparent: true, opacity: 0.12 });
+  const matLinha = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
+  const matSombra = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.06 });
   for (const anel of contorno) {
     const pts = anel.map(([lon, lat]) => new THREE.Vector3(...proj(lon, lat), 0));
     const g = new THREE.BufferGeometry().setFromPoints(pts);
@@ -137,7 +138,7 @@ export function iniciarMapa(canvas, chip) {
   }
 
   // grade fina embaixo do mapa — dá chão e profundidade
-  const grade = new THREE.GridHelper(9, 36, 0x1b7a4f, 0x123b29);
+  const grade = new THREE.GridHelper(9, 36, 0x3a3d3c, 0x232625);
   grade.rotation.x = Math.PI / 2;
   grade.position.z = -0.14;
   grade.material.transparent = true;
