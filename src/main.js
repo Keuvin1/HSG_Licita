@@ -1,5 +1,4 @@
-import "@fontsource-variable/fraunces/opsz.css";
-import "@fontsource-variable/fraunces/opsz-italic.css";
+import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/manrope";
 import "@fontsource-variable/jetbrains-mono";
 import "lenis/dist/lenis.css";
@@ -90,6 +89,8 @@ function montar() {
   heroTl
     .to(".hero-conteudo", { yPercent: -20, opacity: 0, ease: "power1.in", duration: 0.3 }, 0)
     .to(".hero-pilulas, .hero-rolar", { opacity: 0, y: 30, ease: "power1.in", duration: 0.2 }, 0)
+    // no celular o mapa começa suave atrás do título e ganha força quando o texto sai
+    .to(".hero-mapa", { opacity: 1, ease: "none", duration: 0.3 }, 0)
     .set(".hero-numeros", { visibility: "visible" }, 0.32)
     .from(".hero-numeros-intro", { opacity: 0, y: 30, duration: 0.12 }, 0.34)
     .from(".numeros > div", { opacity: 0, y: 60, stagger: 0.06, duration: 0.16 }, 0.38);

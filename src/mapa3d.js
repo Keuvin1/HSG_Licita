@@ -28,7 +28,7 @@ const vertPontos = /* glsl */ `
     float pisca = 0.62 + 0.38 * sin(uTempo * 1.4 + fase * 6.2831);
     float on = smoothstep(ordem - 0.06, ordem, uRevela);
     vB = brilho * pisca * on;
-    gl_PointSize = tam * uPixel * (34.0 / -mv.z) * (0.4 + 0.6 * on);
+    gl_PointSize = tam * uPixel * (30.0 / -mv.z) * (0.4 + 0.6 * on);
     gl_Position = projectionMatrix * mv;
   }
 `;
@@ -38,7 +38,7 @@ const fragPontos = /* glsl */ `
   void main() {
     float d = length(gl_PointCoord - 0.5);
     float a = pow(smoothstep(0.5, 0.0, d), 1.7);
-    gl_FragColor = vec4(uCor * (0.55 + vB * 0.7), a * vB);
+    gl_FragColor = vec4(uCor, a * min(0.95, vB * 0.8));
   }
 `;
 
@@ -71,7 +71,8 @@ export function iniciarMapa(canvas, chip) {
 
   const MENTA = new THREE.Color(0x6fe3ad);
   const BRANCO = new THREE.Color(0xffffff);
-  const PONTO = new THREE.Color(0xe8ece9);
+  const PONTO = new THREE.Color(0x1b7a4f);
+  const VERDE = new THREE.Color(0x1b7a4f);
 
   const palco = new THREE.Group(); // posição na tela (desktop: à direita)
   const mapa = new THREE.Group(); // inclinação
@@ -121,13 +122,12 @@ export function iniciarMapa(canvas, chip) {
     uniforms: uniP,
     transparent: true,
     depthWrite: false,
-    blending: THREE.AdditiveBlending,
   });
   mapa.add(new THREE.Points(geoP, matP));
 
   // ---------- contorno ----------
-  const matLinha = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
-  const matSombra = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.06 });
+  const matLinha = new THREE.LineBasicMaterial({ color: 0x0c1a14, transparent: true, opacity: 0.28 });
+  const matSombra = new THREE.LineBasicMaterial({ color: 0x0c1a14, transparent: true, opacity: 0.06 });
   for (const anel of contorno) {
     const pts = anel.map(([lon, lat]) => new THREE.Vector3(...proj(lon, lat), 0));
     const g = new THREE.BufferGeometry().setFromPoints(pts);
@@ -138,11 +138,11 @@ export function iniciarMapa(canvas, chip) {
   }
 
   // grade fina embaixo do mapa — dá chão e profundidade
-  const grade = new THREE.GridHelper(9, 36, 0x3a3d3c, 0x232625);
+  const grade = new THREE.GridHelper(9, 36, 0xcfcabd, 0xdedacf);
   grade.rotation.x = Math.PI / 2;
   grade.position.z = -0.14;
   grade.material.transparent = true;
-  grade.material.opacity = 0.18;
+  grade.material.opacity = 0.28;
   mapa.add(grade);
 
   // ---------- pulsos e arcos ----------
@@ -170,10 +170,9 @@ export function iniciarMapa(canvas, chip) {
     const mat = new THREE.ShaderMaterial({
       vertexShader: vertAnel,
       fragmentShader: fragAnel,
-      uniforms: { uProg: { value: 0 }, uCor: { value: BRANCO } },
+      uniforms: { uProg: { value: 0 }, uCor: { value: VERDE } },
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
     });
     const anel = new THREE.Mesh(geoAnel, mat);
     anel.position.set(pos[i * 3], pos[i * 3 + 1], 0.01);
@@ -188,7 +187,7 @@ export function iniciarMapa(canvas, chip) {
     const curva = new THREE.QuadraticBezierCurve3(a, meio, b);
     const geoArco = new THREE.BufferGeometry().setFromPoints(curva.getPoints(60));
     geoArco.setDrawRange(0, 0);
-    const matArco = new THREE.LineBasicMaterial({ color: MENTA, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
+    const matArco = new THREE.LineBasicMaterial({ color: VERDE, transparent: true, opacity: 0.85 });
     const arco = new THREE.Line(geoArco, matArco);
     mapa.add(arco);
 
