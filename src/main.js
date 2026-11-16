@@ -9,7 +9,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
-import { iniciarHero3D } from "./hero3d.js";
+import { iniciarMapa } from "./mapa3d.js";
 import { iniciarMontador } from "./montador.js";
 import { config, linkWhats } from "./config.js";
 
@@ -57,7 +57,7 @@ function montar() {
   const mm = gsap.matchMedia();
 
   // ================= HERO =================
-  const hero3d = iniciarHero3D($(".hero-3d"));
+  const mapa = iniciarMapa($(".hero-mapa"), $(".mapa-chip"));
 
   SplitText.create(".hero-titulo", {
     type: "lines,words",
@@ -75,19 +75,37 @@ function montar() {
     delay: 0.55,
   });
 
-  // hero preso: a câmera atravessa os documentos e o texto sai
-  gsap.timeline({
+  // hero preso: o texto sai, o mapa vem ao centro e os números do mercado sobem
+  const contadores = $$(".js-conta").map((el) => ({ el, v: 0, n: +el.dataset.n }));
+  const heroTl = gsap.timeline({
     scrollTrigger: {
       trigger: ".hero",
       start: "top top",
-      end: "+=90%",
+      end: "+=170%",
       pin: true,
       scrub: true,
-      onUpdate: (self) => hero3d.setProgresso(self.progress),
+      onUpdate: (self) => mapa.setProgresso(Math.min(1, self.progress / 0.55)),
     },
-  })
-    .to(".hero-conteudo", { yPercent: -18, opacity: 0, ease: "power1.in" }, 0)
-    .to(".hero-pilulas, .hero-rolar", { opacity: 0, y: 30, ease: "power1.in" }, 0);
+  });
+  heroTl
+    .to(".hero-conteudo", { yPercent: -20, opacity: 0, ease: "power1.in", duration: 0.3 }, 0)
+    .to(".hero-pilulas, .hero-rolar", { opacity: 0, y: 30, ease: "power1.in", duration: 0.2 }, 0)
+    .set(".hero-numeros", { visibility: "visible" }, 0.32)
+    .from(".hero-numeros-intro", { opacity: 0, y: 30, duration: 0.12 }, 0.34)
+    .from(".numeros > div", { opacity: 0, y: 60, stagger: 0.06, duration: 0.16 }, 0.38);
+  contadores.forEach((c, k) =>
+    heroTl.to(
+      c,
+      {
+        v: c.n,
+        duration: 0.22,
+        ease: "power2.out",
+        onUpdate: () => (c.el.textContent = Math.round(c.v).toLocaleString("pt-BR")),
+      },
+      0.4 + k * 0.06
+    )
+  );
+  heroTl.from(".hero-numeros-fim", { opacity: 0, y: 30, duration: 0.14 }, 0.66).to({}, { duration: 0.2 });
 
   // ================= MANIFESTO: palavras acendem =================
   SplitText.create(".js-acende", {
