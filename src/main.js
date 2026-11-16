@@ -194,11 +194,6 @@ function montar() {
     gsap.to(faixa, { timeScale: 1 + Math.abs(v), duration: 0.2, overwrite: true });
     gsap.to(faixa, { timeScale: 1, duration: 1.2, delay: 0.2 });
   });
-  gsap.fromTo(".faixa", { rotate: -2.5 }, {
-    rotate: 2.5,
-    ease: "none",
-    scrollTrigger: { trigger: ".faixa", start: "top bottom", end: "bottom top", scrub: true },
-  });
 
   // ================= FAQ =================
   $$(".faq-item").forEach((item) => {
