@@ -27,7 +27,7 @@ $$("[data-confirmar]").forEach((a) => {
 });
 
 // ---------- smooth scroll ----------
-const lenis = new Lenis({ lerp: 0.09 });
+const lenis = new Lenis({ lerp: 0.13 });
 lenis.on("scroll", ScrollTrigger.update);
 gsap.ticker.add((t) => lenis.raf(t * 1000));
 gsap.ticker.lagSmoothing(0);
@@ -189,11 +189,23 @@ function montar() {
 
   // ================= FAIXA "Fidelize-se" =================
   const faixa = gsap.to(".faixa-trilho", { xPercent: -50, duration: 100, ease: "none", repeat: -1 });
-  lenis.on("scroll", (l) => {
-    const v = gsap.utils.clamp(-6, 6, l.velocity * 0.12);
-    gsap.to(faixa, { timeScale: 1 + Math.abs(v), duration: 0.2, overwrite: true });
-    gsap.to(faixa, { timeScale: 1, duration: 1.2, delay: 0.2 });
+  // acelera com a velocidade do scroll, suavizado num só lugar (sem criar tweens a cada evento)
+  let escala = 1;
+  const acompanhar = () => {
+    const alvo = 1 + Math.min(6, Math.abs(lenis.velocity) * 0.12);
+    escala += (alvo - escala) * 0.08;
+    faixa.timeScale(escala);
+  };
+  ScrollTrigger.create({
+    trigger: ".faixa",
+    start: "top bottom",
+    end: "bottom top",
+    onToggle: (st) => {
+      if (st.isActive) { faixa.play(); gsap.ticker.add(acompanhar); }
+      else { faixa.pause(); gsap.ticker.remove(acompanhar); }
+    },
   });
+  faixa.pause();
 
   // ================= FAQ =================
   $$(".faq-item").forEach((item) => {

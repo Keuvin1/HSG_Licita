@@ -61,8 +61,12 @@ const fragAnel = /* glsl */ `
 `;
 
 export function iniciarMapa(canvas, chip) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // pontos e linhas finas não precisam de antialias nem de resolução 2x/3x:
+  // limitar aqui é o que mais alivia a GPU de notebook e celular
+  const fraco = window.matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency || 8) <= 4;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !fraco && window.devicePixelRatio < 1.5, alpha: true, powerPreference: "high-performance" });
+  let tetoPixel = Math.min(window.devicePixelRatio, fraco ? 1.25 : 1.5);
+  renderer.setPixelRatio(tetoPixel);
   renderer.setClearColor(0x000000, 0);
 
   const cena = new THREE.Scene();
@@ -238,10 +242,27 @@ export function iniciarMapa(canvas, chip) {
   let proximo = 1.2;
   let proximoChip = 2.2;
 
+  // qualidade adaptativa: se os quadros ficarem lentos, baixa a resolução do canvas
+  let qAmostras = 0, qSoma = 0, qUltimo = 0;
+  function medir(ts) {
+    if (qUltimo) { qSoma += ts - qUltimo; qAmostras++; }
+    qUltimo = ts;
+    if (qAmostras === 45) {
+      const media = qSoma / qAmostras;
+      if (media > 24 && tetoPixel > 1) {
+        tetoPixel = Math.max(1, tetoPixel - 0.25);
+        renderer.setPixelRatio(tetoPixel);
+        tamanho();
+      }
+      qAmostras = 0; qSoma = 0;
+    }
+  }
+
   function quadro(ts) {
     requestAnimationFrame(quadro);
     relogio.update(ts);
-    if (!visivel) return;
+    if (!visivel || document.hidden) { qUltimo = 0; return; }
+    medir(ts);
     const t = relogio.getElapsed();
     const dt = Math.min(relogio.getDelta(), 0.05);
     const p = estado.progresso;
