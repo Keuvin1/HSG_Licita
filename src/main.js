@@ -76,14 +76,33 @@ function montar() {
 
   // hero preso: o texto sai, o mapa vem ao centro e os números do mercado sobem
   const contadores = $$(".js-conta").map((el) => ({ el, v: 0, n: +el.dataset.n }));
+  // os números contam por TEMPO (não pelo scroll): mesmo num scroll rápido com o dedo
+  // a contagem roda inteira; o pin mais longo segura a cena enquanto ela acontece
+  let contou = false;
+  const escrever = (c) => (c.el.textContent = Math.round(c.v).toLocaleString("pt-BR"));
+  function contar() {
+    contou = true;
+    contadores.forEach((c, k) =>
+      gsap.to(c, { v: c.n, duration: 2.6, delay: k * 0.25, ease: "power3.out", overwrite: true, onUpdate: () => escrever(c) })
+    );
+  }
+  function zerar() {
+    contou = false;
+    contadores.forEach((c) => { gsap.killTweensOf(c); c.v = 0; escrever(c); });
+  }
   const heroTl = gsap.timeline({
     scrollTrigger: {
       trigger: ".hero",
       start: "top top",
-      end: "+=170%",
+      end: "+=260%",
       pin: true,
-      scrub: true,
-      onUpdate: (self) => mapa.setProgresso(Math.min(1, self.progress / 0.55)),
+      scrub: 0.6,
+      onUpdate: (self) => {
+        mapa.setProgresso(Math.min(1, self.progress / 0.45));
+        const t = heroTl.time();
+        if (!contou && t >= 0.38) contar();
+        else if (contou && t < 0.3) zerar();
+      },
     },
   });
   heroTl
@@ -93,20 +112,9 @@ function montar() {
     .to(".hero-mapa", { opacity: 1, ease: "none", duration: 0.3 }, 0)
     .set(".hero-numeros", { visibility: "visible" }, 0.32)
     .from(".hero-numeros-intro", { opacity: 0, y: 30, duration: 0.12 }, 0.34)
-    .from(".numeros > div", { opacity: 0, y: 60, stagger: 0.06, duration: 0.16 }, 0.38);
-  contadores.forEach((c, k) =>
-    heroTl.to(
-      c,
-      {
-        v: c.n,
-        duration: 0.22,
-        ease: "power2.out",
-        onUpdate: () => (c.el.textContent = Math.round(c.v).toLocaleString("pt-BR")),
-      },
-      0.4 + k * 0.06
-    )
-  );
-  heroTl.from(".hero-numeros-fim", { opacity: 0, y: 30, duration: 0.14 }, 0.66).to({}, { duration: 0.2 });
+    .from(".numeros > div", { opacity: 0, y: 60, stagger: 0.06, duration: 0.16 }, 0.38)
+    .from(".hero-numeros-fim", { opacity: 0, y: 30, duration: 0.14 }, 0.62)
+    .to({}, { duration: 0.45 });
 
   // ================= MANIFESTO: palavras acendem =================
   SplitText.create(".js-acende", {
