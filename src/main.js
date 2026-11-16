@@ -188,7 +188,7 @@ function montar() {
   });
 
   // ================= FAIXA "Fidelize-se" =================
-  const faixa = gsap.to(".faixa-trilho", { xPercent: -50, duration: 26, ease: "none", repeat: -1 });
+  const faixa = gsap.to(".faixa-trilho", { xPercent: -50, duration: 100, ease: "none", repeat: -1 });
   lenis.on("scroll", (l) => {
     const v = gsap.utils.clamp(-6, 6, l.velocity * 0.12);
     gsap.to(faixa, { timeScale: 1 + Math.abs(v), duration: 0.2, overwrite: true });
